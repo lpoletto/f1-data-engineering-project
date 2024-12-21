@@ -1,0 +1,11 @@
+# pyspark-postgresql/*
+pyspark-postgresql/docker_shared_folder/postgres_data
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
