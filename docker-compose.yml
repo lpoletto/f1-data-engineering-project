@@ -1,0 +1,60 @@
+# docker-compose.yml
+version: '3'
+
+services:
+
+  pyspark:
+    image: jupyter/pyspark-notebook:2023-04-24
+    # limit the memory and cpu usage
+    # mem_limit: 512m
+    # mem_reservation: 128M
+    # cpus: 0.5
+    container_name: pyspark
+    ports:
+      - 8888:8888
+    volumes:
+      - ./docker_shared_folder/working_dir:/home/pole/working_dir
+      # - ./docker_shared_folder/secrets:/etc/secrets
+    user: root
+    working_dir: /home/pole/working_dir
+    environment:
+      JUPYTER_ENABLE_LAB: '1' 
+      JUPYTER_TOKEN: 'pole'
+      NB_USER: pole
+      NB_GID: 1000
+      CHOWN_HOME: 'yes'
+      CHOWN_HOME_OPTS: '-R'
+      SPARK_CLASSPATH: '/home/pole/working_dir/driver_jdbc/postgresql-42.5.2.jar'
+  
+  postgres:
+    image: postgres:15
+    container_name: postgres_db
+    volumes:
+      - ./docker_shared_folder/postgres_data:/var/lib/postgresql/data
+    # By default, a Postgres database is running on the 5432 port.
+    # If we want to access the database from our computer (outside the container),
+    # we must share the port with our computer's port.
+    # The syntax is [port we want on our machine]:[port we want to retrieve in the container]
+    # Note: You are free to change your computer's port,
+    # but take into consideration that it will change the way
+    # you are connecting to your database.
+    ports:
+      - ${POSTGRES_PORT}:5432
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER} # The PostgreSQL user (useful to connect to the database)
+      - POSTGRES_PASSWORD=${POSTGRES_PW} # The PostgreSQL password (useful to connect to the database)
+      - POSTGRES_DB=${POSTGRES_DB} # optional (specify default database instead of $POSTGRES_DB)
+      - "POSTGRES_HOST_AUTH_METHOD=trust"
+    # env_file:
+    #   - ./.env
+    restart: always
+
+  pgadmin:
+    container_name: pgadmin
+    image: dpage/pgadmin4:latest
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=${PGADMIN_MAIL}
+      - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_PW}
+    ports:
+      - 5050:80
+    restart: always
