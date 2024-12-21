@@ -1,6 +1,6 @@
 # pyspark-postgresql/*
-pyspark-postgresql/docker_shared_folder/postgres_data
-
+docker_shared_folder/postgres_data
+docker_shared_folder/working_dir/.ipynb_checkpoints
 # Environments
 .env
 .venv
